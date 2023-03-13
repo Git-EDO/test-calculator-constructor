@@ -67,11 +67,19 @@ body {
   gap: 12px;
   border: 2px solid transparent;
 }
+.calculator.hidden {
+  visibility: hidden;
+  opacity: 0;
+}
 .display-wrapper {
   background: #ffffff;
   box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.06), 0px 4px 6px rgba(0, 0, 0, 0.1);
   border-radius: 4px;
   padding: 4px;
+}
+.display-wrapper.disabled {
+  opacity: 0.5;
+  pointer-events: none;
 }
 .display {
   display: flex;
@@ -79,6 +87,7 @@ body {
   border-radius: 6px;
   justify-content: flex-end;
   padding: 4px;
+  overflow-x: hidden;
 
   font-family: 'Inter';
   font-style: normal;
@@ -98,6 +107,10 @@ body {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 8px;
+}
+.arithmetics.disabled {
+  opacity: 0.5;
+  pointer-events: none;
 }
 .arithmetics button {
   background: #ffffff;
@@ -127,6 +140,10 @@ body {
   grid-template-columns: repeat(3, 1fr);
   gap: 8px;
 }
+.numbers.disabled {
+  opacity: 0.5;
+  pointer-events: none;
+}
 .numbers button {
   background: #ffffff;
   border: 1px solid #e2e3e5;
@@ -151,6 +168,10 @@ body {
   box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.06), 0px 4px 6px rgba(0, 0, 0, 0.1);
   border-radius: 4px;
   padding: 4px;
+}
+.equals.disabled {
+  opacity: 0.5;
+  pointer-events: none;
 }
 .equals button {
   background: #5d5fef;
@@ -185,6 +206,9 @@ body {
   flex-direction: column;
   gap: 12px;
 }
+.calculator-placeholder.active {
+  border: 2px dashed transparent;
+}
 .placeholder-text {
   position: absolute;
   top: 50%;
@@ -192,6 +216,9 @@ body {
   transform: translate(-50%, -50%);
   width: 130px;
   text-align: center;
+}
+.calculator-placeholder.active .placeholder-text {
+  display: none;
 }
 .placeholder-text p {
   text-align: center;

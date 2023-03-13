@@ -1,18 +1,30 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import ArithmeticsButtons from './UI/ArithmeticsButtons'
 import NumbersButtons from './UI/NumbersButtons'
 import EqualsButton from './UI/EqualsButton'
 import Display from './UI/Display'
 import { ReactComponent as ImageIcon } from '../assets/image-icon.svg'
-
-interface CustomComponent {
-  component: string
-  order: number
-}
+import { IComponent } from '../redux/appReducer'
+import { useDispatch } from 'react-redux'
+import { addComponent } from '../redux/actionsCreator'
+import { useTypedSelector } from '../hooks/useTypeSelector'
 
 const CalculatorPlaceholder = () => {
-  const [elems, setElems] = useState<CustomComponent[]>([])
+  const [mode, setMode] = useState<boolean>(false)
+  const [elems, setElems] = useState<IComponent[]>([])
   const [isOver, setIsOver] = useState<boolean>(false)
+  const dispatch = useDispatch()
+
+  const { placeholderComponents, constructorMode } = useTypedSelector(
+    (state) => state.appReducer
+  )
+  useEffect(() => {
+    setMode(!constructorMode)
+  }, [constructorMode])
+
+  useEffect(() => {
+    setElems(placeholderComponents)
+  }, [placeholderComponents, constructorMode])
 
   const dragOverHandler = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault()
@@ -25,28 +37,30 @@ const CalculatorPlaceholder = () => {
   const dropHandler = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault()
     const element = e.dataTransfer.getData('text')
-    const hasElement = elems.some((el) => el.component === element)
-    setElems(
-      hasElement
-        ? elems
-        : [...elems, { component: element, order: elems.length + 1 }]
-    )
+    const hasElement = elems.some((el) => el.component === `<${element}/>`)
+    if (!hasElement) {
+      dispatch(addComponent(`<${element}/>`))
+    }
     setIsOver(false)
   }
 
   const sortElements = () => {
-    const display = elems.find((el) => el.component === 'Display')
+    const display = elems.find((el) => el.component === '<Display/>')
     if (display && display.order !== 0) {
       elems.forEach((el) => el.order++)
       display.order = 0
       return [...elems.sort((a, b) => (a.order > b.order ? +1 : -1))]
     }
-    return elems
+    return [...elems.sort((a, b) => (a.order > b.order ? +1 : -1))]
   }
 
   return (
     <div
-      className="calculator-placeholder"
+      className={
+        mode
+          ? ['calculator-placeholder', 'active'].join(' ')
+          : 'calculator-placeholder'
+      }
       style={
         isOver
           ? { backgroundColor: '#F0F9FF' }
@@ -65,14 +79,29 @@ const CalculatorPlaceholder = () => {
       )}
       {sortElements().map((el) => {
         switch (el.component) {
-          case 'Display':
-            return <Display draggable={false} key={el.order} />
-          case 'NumbersButtons':
-            return <NumbersButtons draggable key={el.order} />
-          case 'EqualsButton':
-            return <EqualsButton draggable key={el.order} />
+          case '<Display/>':
+            return <Display draggable={false} key={el.component} />
+          case '<NumbersButtons/>':
+            return (
+              <NumbersButtons
+                draggable={mode ? false : true}
+                key={el.component}
+              />
+            )
+          case '<EqualsButton/>':
+            return (
+              <EqualsButton
+                draggable={mode ? false : true}
+                key={el.component}
+              />
+            )
           default:
-            return <ArithmeticsButtons draggable key={el.order} />
+            return (
+              <ArithmeticsButtons
+                draggable={mode ? false : true}
+                key={el.component}
+              />
+            )
         }
       })}
     </div>
